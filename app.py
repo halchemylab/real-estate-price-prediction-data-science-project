@@ -2,34 +2,38 @@ import streamlit as st
 import numpy as np
 import joblib 
 
+# Load the scaler and model
 scaler = joblib.load("Scaler.pkl")
 model = joblib.load("model.pkl")
 
+# App Title
 st.title("Real Estate Price Prediction App")
 
 st.divider()
 
-bed = st.number_input("Enter the number of bedrooms", value=2, step=1)
-bath = st.number_input("Enter the number of bathrooms", value=1, step=1)
-size = st.number_input("Enter the size", value=1000, step=50)
+# User inputs for bedrooms, bathrooms, and size
+bed = st.number_input("Enter the number of bedrooms", value=2, step=1, min_value=0)
+bath = st.number_input("Enter the number of bathrooms", value=1, step=1, min_value=0)
+size = st.number_input("Enter the size (sqft)", value=1000, step=50, min_value=1)
 
+# Prepare the input for the model
 X = [bed, bath, size]
 
 st.divider()
 
-predictbutton = st.button("Please press the button for prediction")
-
-st.divider()
-
-if predictbutton:
-    st.balloons()
-
-    X1 = np.array(X)
-    X_array = scaler.transform([X1])
-
-    prediction = model.predict(X_array)[0]
-
-    st.write(f"The predicted price is {prediction:.2f}")
-
+# Button for triggering prediction
+if st.button("Predict Price"):
+    # Check inputs and run prediction
+    if bed >= 0 and bath >= 0 and size > 0:
+        st.balloons()
+        
+        # Scale the input and predict
+        X_array = scaler.transform([X])
+        prediction = model.predict(X_array)[0]
+        
+        # Display the predicted price
+        st.write(f"The predicted price is ${prediction:,.2f}")
+    else:
+        st.write("Please ensure all inputs are valid.")
 else:
-    "Please use the button for prediction"
+    st.write("Please use the button for prediction.")
